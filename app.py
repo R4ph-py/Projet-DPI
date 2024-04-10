@@ -1,9 +1,6 @@
 """Fichier serveur du projet"""
 
-import datetime
-import hashlib
 import secrets
-import re
 from flask_socketio import SocketIO, emit
 from flask import Flask, request, render_template, redirect, make_response
 from patients import (
@@ -33,13 +30,6 @@ socketio = SocketIO(app, cors_allowed_origins="*", logger=True)
 create_patients_table()
 create_transmissions_table()
 create_users_table()
-
-
-# <-----------------------------------> #
-# <-----------------------------------> #
-
-# <-----------------------------------> #
-# <------- Panel des fonctions -------> #
 
 
 # <-----------------------------------> #
