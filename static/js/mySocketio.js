@@ -1,8 +1,12 @@
 var user = {};
-var patients = [];
-var icons = Array.from(document.querySelectorAll('.item'));
+var patientsData = [];
+var selectedPatient = null;
+var icons = document.querySelectorAll('.item');
 var subicons = document.querySelectorAll('.subicon');
+var patientDropdown = document.getElementById('patients-dropdown');
 
+
+// Functions
 
 function sendTransmission(itemId) {
     var item = timelineTR.itemsData.get(itemId);
@@ -34,88 +38,28 @@ function sendTransmission(itemId) {
         topic: topic,
         value: value,
         comment: item.comment,
+        u_uid: user.uid,
+        p_uid: selectedPatient.id,
     });
 }
-
 
 function sendRemoveTransmission(itemId) {
     socket.emit('remove_transmission', { trid: itemId });
 }
 
-socket.on('transmissions', function (data) {
-    var transmissions = data.transmissions;
-    for (var transmission of transmissions) {
-        var date = transmission.date.split('-');
-        var time = transmission.time.split(':');
-        var itemContent = "";
-        for (var icon of icons) {
-            if (icon.childNodes[1].id === transmission.topic) {
-                itemContent = icon.innerHTML;
-                break;
-            }
-        }
-        if (itemContent === "") {
-            for (var subicon of subicons) {
-                if (subicon.id === transmission.topic + transmission.value) {
-                    itemContent = subicon.outerHTML;
-                    break;
-                }
-            }
-        }
-        var startTime = new Date(date[0], date[1] - 1, date[2], time[0], time[1], 0, 0);
-        timelineTR.itemsData.add({
-            id: transmission.trid,
-            content: itemContent,
-            start: startTime,
-            group: transmission.group,
-            type: "box",
-            comment: transmission.comment,
-        });
-        timelineTR.itemsData.add({
-            id: transmission.trid + "-time",
-            content: (String(time[0]).length === 1 ? '0' : '') + time[0] + ':' + (String(time[1]).length === 1 ? '0' : '') + time[1],
-            start: startTime,
-            group: 5,
-            type: "point",
-            className: "item-time",
-        });
+function patientDropdownChanged(event) {
+    selectedPatient = patientsData.find(function (patient) {
+        return patient.id === patientDropdown.value;
+    });
+    timelineTR.itemsData.clear();
+    if (selectedPatient == null) {
+        return;
     }
-});
+    socket.emit('get_transmissions', { uid: selectedPatient.id });
+}
 
 
-socket.on('patients', function (data) {
-    patients = data.patients;
-    for (var patient of patients) {
-        var patient_data = {
-            id: patient.uid,
-            name: patient.first_name + " " + patient.last_name,
-            birthdate: patient.birthdate,
-            gender: patient.gender,
-        };
-        patients.push(patient_data);
-    }
-
-    var patientSelect = document.getElementById('patientSelect');
-    for (var patient of patients) {
-        var option = document.createElement('option');
-        option.value = patient.id;
-        option.innerHTML = patient.name;
-        patientSelect.appendChild(option);
-    }
-});
-
-
-socket.on('auth', function (data) {
-    if (data.uid !== null) {
-        user.first_name = data.first_name;
-        user.last_name = data.last_name;
-        user.uid = data.uid;
-        user.occupation = data.occupation;
-        // socket.emit('get_patients');
-        socket.emit('get_transmissions', "0");
-    }
-});
-
+// Socket.io
 
 socket.on('transmission', function (data) {
     var selected = false;
@@ -131,8 +75,8 @@ socket.on('transmission', function (data) {
     var time = data.time.split(':');
     var itemContent = "";
     for (var icon of icons) {
-        if (icon.childNodes[1].id === data.topic) {
-            itemContent = icon.innerHTML;
+        if (icon.id === data.topic) {
+            itemContent = icon.outerHTML;
             break;
         }
     }
@@ -164,10 +108,9 @@ socket.on('transmission', function (data) {
 
     if (selected) {
         timelineTR.setSelection([data.trid]);
-        showCommentBox(data.comment);
+        showCommentArea(data.comment);
     }
 });
-
 
 socket.on('transmission_added', function (data) {
     var here = false;
@@ -185,23 +128,93 @@ socket.on('transmission_added', function (data) {
         }
     }
     if (!here) {
-        socket.emit('get_transmission', {trid: data.trid});
+        socket.emit('get_transmission', { trid: data.trid });
     }
 });
 
-
 socket.on('transmission_updated', function (data) {
-    socket.emit('get_transmission', {trid: data.trid});
+    socket.emit('get_transmission', { trid: data.trid });
 });
-
 
 socket.on('transmission_removed', function (data) {
     if (data.trid === timelineTR.getSelection()[0]) {
-        hideCommentBox();
+        hideCommentArea();
     }
     timelineTR.itemsData.remove(data.trid);
     timelineTR.itemsData.remove(data.trid + "-time");
 });
 
+socket.on('transmissions', function (data) {
+    var transmissions = data.transmissions;
+    for (var transmission of transmissions) {
+        var date = transmission.date.split('-');
+        var time = transmission.time.split(':');
+        var itemContent = "";
+        for (var icon of icons) {
+            if (icon.id === transmission.topic) {
+                itemContent = icon.outerHTML;
+                break;
+            }
+        }
+        if (itemContent === "") {
+            for (var subicon of subicons) {
+                if (subicon.id === transmission.topic + transmission.value) {
+                    itemContent = subicon.outerHTML;
+                    break;
+                }
+            }
+        }
+        var startTime = new Date(date[0], date[1] - 1, date[2], time[0], time[1], 0, 0);
+        timelineTR.itemsData.add({
+            id: transmission.trid,
+            content: itemContent,
+            start: startTime,
+            group: transmission.group,
+            type: "box",
+            comment: transmission.comment,
+        });
+        timelineTR.itemsData.add({
+            id: transmission.trid + "-time",
+            content: (String(time[0]).length === 1 ? '0' : '') + time[0] + ':' + (String(time[1]).length === 1 ? '0' : '') + time[1],
+            start: startTime,
+            group: 5,
+            type: "point",
+            className: "item-time",
+        });
+    }
+});
+
+socket.on('patients', function (data) {
+    patients = data.patients;
+
+    for (var patient of patients) {
+        var patient_data = {
+            id: patient.uid,
+            name: patient.first_name + " " + patient.last_name,
+            birthdate: patient.birthdate,
+            gender: patient.gender,
+        };
+        patientsData.push(patient_data);
+    }
+
+    for (var patient of patientsData) {
+        var option = document.createElement('option');
+        option.value = patient.id;
+        option.innerHTML = patient.name;
+        patientDropdown.appendChild(option);
+    }
+
+    patientDropdown.addEventListener('change', patientDropdownChanged);
+});
+
+socket.on('auth', function (data) {
+    if (data.uid !== null) {
+        user.first_name = data.first_name;
+        user.last_name = data.last_name;
+        user.uid = data.uid;
+        user.occupation = data.occupation;
+        socket.emit('get_patients');
+    }
+});
 
 socket.emit('get_auth');

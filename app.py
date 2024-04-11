@@ -103,44 +103,47 @@ def get_auth():
 @socketio.on("get_patients")
 def get_patients():
     """Récupération des patients"""
-    patients = load_patients_list()
     patients = []
-    for p in patients:
+    for p in load_patients_list():
         patients.append(
             {
                 "uid": p.uid,
                 "first_name": p.first_name,
                 "last_name": p.last_name,
                 "birthdate": p.birthdate,
+                "gender": p.gender,
             }
         )
 
     emit("patients", {"patients": patients})
 
 
-@socketio.on('get_transmission')
+@socketio.on("get_transmission")
 def get_transmission(data):
     """Récupération d'une transmission"""
-    tr = load_transmission(data['trid'])
+    tr = load_transmission(data["trid"])
     if tr is None:
         return
 
-    emit('transmission', {
-        'trid': tr.trid,
-        'date': tr.date,
-        'time': tr.time,
-        'topic': tr.topic,
-        'value': tr.value,
-        'comment': tr.comment,
-        'group': tr.get_category(),
-    })
+    emit(
+        "transmission",
+        {
+            "trid": tr.trid,
+            "date": tr.date,
+            "time": tr.time,
+            "topic": tr.topic,
+            "value": tr.value,
+            "comment": tr.comment,
+            "group": tr.get_category(),
+        },
+    )
 
 
 @socketio.on("get_transmissions")
 def get_transmissions(data):
     """Récupération des transmissions"""
     # transmissions = load_transmissions_list(data["uid"])
-    transmissions = load_transmissions_list(load_patients_list()[0].uid)
+    transmissions = load_transmissions_list(data["uid"])
     transmissions = [
         {
             "trid": tr.trid,
@@ -165,8 +168,8 @@ def add_transmission(data):
         topic=data["topic"],
         value=data["value"],
         comment=data["comment"],
-        id_patient=load_patients_list()[0].uid,
-        id_user=load_users_list()[0].uid,
+        id_patient=data["p_uid"],
+        id_user=data["u_uid"],
     )
     tr.store()
     print(tr.trid)

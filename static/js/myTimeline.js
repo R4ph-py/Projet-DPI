@@ -3,33 +3,10 @@ var icons = document.querySelectorAll('.item');
 var subicons = document.querySelectorAll('.subicon');
 var hiddenUl = document.getElementById('hiddenUl');
 var shownUl = document.getElementById('shownUl');
+var commentArea = document.getElementById('comment-transmition');
 
-function hideAllSubicons() {
-    var length = shownUl.childNodes.length;
-    for (var child = 0; child < length; child++) {
-        if (shownUl.childNodes[0].nodeName === 'BR') {
-            shownUl.removeChild(shownUl.childNodes[0]);
-            continue;
-        }
-        hiddenUl.appendChild(shownUl.childNodes[0]);
-    }
-}
+var update = {};
 
-for (var modal of modalIcons) {
-    modal.addEventListener('click', function (event) {
-        hideAllSubicons();
-        for (var subicon of subicons) {
-            if (subicon.id.substring(0, subicon.id.length - 1) === event.target.id) {
-                if (shownUl.childNodes.length === 5) {
-                    shownUl.appendChild(document.createElement('br'));
-                }
-                shownUl.appendChild(subicon.parentElement);
-            }
-        }
-    });
-}
-
-// create groups
 var groups = new vis.DataSet([{
     id: 0,
     content: ''
@@ -53,32 +30,40 @@ var groups = new vis.DataSet([{
 
 var items = new vis.DataSet();
 
-function removeHandler(event) {
-    sendRemoveTransmission(event.id);
-}
-
-// specify options
 var options = {
     stack: true,
     zoomMin: 1000 * 60 * 60,
     zoomMax: 1000 * 60 * 60 * 12,
     editable: {
-        add: true,            // add new items by double tapping
-        updateTime: false,    // drag items horizontally
-        updateGroup: false,   // drag items from one group to another
-        remove: true,         // delete an item by tapping the delete button top right
-        overrideItems: false  // allow these options to override item.editable
+        add: true,
+        updateTime: false,
+        updateGroup: false,
+        remove: true,
+        overrideItems: false
     },
     onRemove: removeHandler,
 };
 
-// create a Timeline
 var container = document.getElementById('visualization');
 var timelineTR = new vis.Timeline(container, items, groups, options);
 
-setTimeout(() => {
-    timelineTR.moveTo(new Date(), { animation: true });
-}, 1000);
+
+// Fonctions
+
+function hideAllSubicons() {
+    var length = shownUl.childNodes.length;
+    for (var child = 0; child < length; child++) {
+        if (shownUl.childNodes[0].nodeName === 'BR') {
+            shownUl.removeChild(shownUl.childNodes[0]);
+            continue;
+        }
+        hiddenUl.appendChild(shownUl.childNodes[0]);
+    }
+}
+
+function removeHandler(event) {
+    sendRemoveTransmission(event.id);
+}
 
 function handleDragStart(event) {
     var icon = event.target;
@@ -123,11 +108,11 @@ function handleDragEnd(event) {
     var item = timelineTR.itemsData.get('added-item');
     var timeItem = timelineTR.itemsData.get('adding-item-time');
 
-    if (item === undefined) {
+    if (item == null) {
         return;
     }
 
-    hideCommentBox();
+    hideCommentArea();
     hideAllSubicons();
 
     if (item.content.includes('vital-constant')) {
@@ -157,8 +142,7 @@ function handleDragEnd(event) {
     sendTransmission(item.id);
 }
 
-
-function showPreciseTime(params) {
+function cursorShowPreciseTime(params) {
     if (timelineTR.itemsData.get('cursor-time') != undefined && timelineTR.itemsData.get('cursor-time').start === params.time) {
         return;
     }
@@ -173,8 +157,8 @@ function showPreciseTime(params) {
     timelineTR.itemsData.update(item);
 }
 
-function showPreciseTimeDrag(params) {
-    showPreciseTime(params);
+function dragShowPreciseTime(params) {
+    cursorShowPreciseTime(params);
     if (timelineTR.itemsData.get('adding-item-time') != undefined && timelineTR.itemsData.get('adding-item-time').start === params.time) {
         return;
     }
@@ -189,12 +173,78 @@ function showPreciseTimeDrag(params) {
     timelineTR.itemsData.update(item);
 }
 
+function showCommentArea(value) {
+    commentArea.value = value;
+    commentArea.style.display = 'block';
+}
+
+function hideCommentArea() {
+    commentArea.value = '';
+    commentArea.style.display = 'none';
+}
+
+function showItemInput(itemId) {
+    var item = timelineTR.itemsData.get(itemId);
+    if (item.content.includes('T')) {
+        return;
+    }
+}
+
+function onClick(event) {
+    if (event.item != null && !event.item.includes('time')) {
+        showCommentArea(timelineTR.itemsData.get(event.item).comment || '');
+        showItemInput(event.item);
+        return;
+    }
+    hideCommentArea();
+}
+
+function updateComment(itemId) {
+    sendTransmission(itemId);
+}
+
+function onInput(event) {
+    var item = timelineTR.itemsData.get(timelineTR.getSelection()[0]);
+    item.comment = commentArea.value;
+    timelineTR.itemsData.update(item);
+
+    if (item.id in update) {
+        clearTimeout(update[item.id]);
+    }
+
+    update[item.id] = setTimeout(updateComment, 100, item.id);
+}
+
+
+// Events
+
 for (var i = icons.length - 1; i >= 0; i--) {
     var item = icons[i];
     item.addEventListener('dragstart', handleDragStart.bind(this), false);
     item.addEventListener('dragend', handleDragEnd.bind(this), false);
 }
 
-timelineTR.on('mouseMove', showPreciseTime);
-timelineTR.on('dragover', showPreciseTimeDrag);
+for (var modal of modalIcons) {
+    modal.addEventListener('click', function (event) {
+        hideAllSubicons();
+        for (var subicon of subicons) {
+            if (subicon.id.substring(0, subicon.id.length - 1) === event.target.id) {
+                if (shownUl.childNodes.length === 5) {
+                    shownUl.appendChild(document.createElement('br'));
+                }
+                shownUl.appendChild(subicon.parentElement);
+            }
+        }
+    });
+}
+
+timelineTR.on('mouseMove', cursorShowPreciseTime);
+timelineTR.on('dragover', dragShowPreciseTime);
+timelineTR.on('click', onClick);
 container.addEventListener('mouseout', mouseOut);
+commentArea.addEventListener('input', onInput);
+
+
+setTimeout(() => {
+    timelineTR.moveTo((new Date() - 1000 * 60 * 60 * 4), { animation: true });
+}, 0);

@@ -3575,10 +3575,8 @@ button.small,
 
 .window {
 	border: 1px solid #ccc;
-	/* Bordure */
 	position: absolute;
 	z-index: 1000;
-	/* Z-index élevé pour se superposer aux autres éléments */
 	padding: 20px;
 }
 
@@ -3589,9 +3587,12 @@ button.small,
 
 .cursor-time {
 	border-color: darkgray;
-	background-color: lightgray;
 }
 
-.item-time {
-	background-color: lightgray;
+#patients-dropdown {
+	width: 20%;
+	height: 50px;
+	font-size: 20px;
+	text-align: center;
+	border-radius: 5px;
 }
