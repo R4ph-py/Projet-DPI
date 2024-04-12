@@ -4,6 +4,10 @@ var subicons = document.querySelectorAll('.subicon');
 var hiddenUl = document.getElementById('hiddenUl');
 var shownUl = document.getElementById('shownUl');
 var commentArea = document.getElementById('comment-transmition');
+var numInput1 = document.getElementById('num-1');
+var numInput2 = document.getElementById('num-2');
+var checkInput = document.getElementById('check-1');
+var checkLabel = document.getElementById('check-1-label');
 
 var update = {};
 
@@ -112,7 +116,13 @@ function handleDragEnd(event) {
         return;
     }
 
-    hideCommentArea();
+    if (selectedPatient == null) {
+        timelineTR.itemsData.remove('added-item');
+        timelineTR.itemsData.remove('adding-item-time');
+        return;
+    }
+
+    hideInputs();
     hideAllSubicons();
 
     if (item.content.includes('vital-constant')) {
@@ -178,41 +188,108 @@ function showCommentArea(value) {
     commentArea.style.display = 'block';
 }
 
-function hideCommentArea() {
+function hideInputs() {
     commentArea.value = '';
     commentArea.style.display = 'none';
+    numInput1.style.display = 'none';
+    numInput2.style.display = 'none';
+    checkInput.style.display = 'none';
 }
 
 function showItemInput(itemId) {
     var item = timelineTR.itemsData.get(itemId);
-    if (item.content.includes('T')) {
+    var itemTopic = item.content.split('id="')[1].split('"')[0].replace(/[0-9]/g, '');
+    if (itemTopic === "PA") {
+        pressures = item.value.split('/') || [0, 0];
+        numInput1.style.display = 'block';
+        numInput1.setAttribute('placeholder', 'Systolique');
+        numInput1.value = pressures[0];
+        numInput1.max = 20;
+        numInput1.min = 5;
+        numInput1.step = 1;
+        numInput2.style.display = 'block';
+        numInput2.setAttribute('placeholder', 'Diastolique');
+        numInput2.value = pressures[1];
+        numInput2.max = 15;
+        numInput2.min = 1;
+        numInput2.step = 1;
+        return;
+    }
+    if (itemTopic === "S") {
+        numInput1.style.display = 'block';
+        numInput1.setAttribute('placeholder', 'Saturation');
+        numInput1.value = item.value;
+        numInput1.max = 100;
+        numInput1.min = 0;
+        numInput1.step = 1;
+        return;
+    }
+    if (itemTopic === "P") {
+        numInput1.style.display = 'block';
+        numInput1.setAttribute('placeholder', 'Pouls');
+        numInput1.value = item.value;
+        numInput1.max = 200;
+        numInput1.min = 40;
+        numInput1.step = 1;
+        return;
+    }
+    if (itemTopic === "T") {
+        numInput1.style.display = 'block';
+        numInput1.setAttribute('placeholder', 'Température');
+        numInput1.value = item.value;
+        numInput1.max = 50;
+        numInput1.min = 20;
+        numInput1.step = 0.1;
+        return;
+    }
+    if (itemTopic === "C") {
+        checkInput.style.display = 'block';
+        checkInput.className = item.value === 'true' ? '' : 'unchecked';
         return;
     }
 }
 
 function onClick(event) {
-    if (event.item != null && !event.item.includes('time')) {
-        showCommentArea(timelineTR.itemsData.get(event.item).comment || '');
-        showItemInput(event.item);
+    hideInputs();
+    if (event.item == null || event.item.includes('time')) {
         return;
     }
-    hideCommentArea();
+    showCommentArea(timelineTR.itemsData.get(event.item).comment || '');
+    showItemInput(event.item);
 }
 
-function updateComment(itemId) {
+function updateTransmission(itemId) {
     sendTransmission(itemId);
 }
 
 function onInput(event) {
     var item = timelineTR.itemsData.get(timelineTR.getSelection()[0]);
-    item.comment = commentArea.value;
-    timelineTR.itemsData.update(item);
-
+    var value = event.target.value;
+    if (event.target.id === 'comment-transmition') {
+        item.comment = value;
+        timelineTR.itemsData.update(item);
+    }
+    if (event.target.id === 'num-1' || event.target.id === 'num-2') {
+        if (item.content.includes('PA')) {
+            item.value = numInput1.value + '/' + numInput2.value;
+        } else {
+            item.value = value;
+        }
+    }
+    if (event.target.id === 'check-1') {
+        if (checkInput.className.includes('unchecked')) {
+            checkInput.className = '';
+            item.value = true;
+        }
+        else {
+            checkInput.className = 'unchecked';
+            item.value = false;
+        }
+    }
     if (item.id in update) {
         clearTimeout(update[item.id]);
     }
-
-    update[item.id] = setTimeout(updateComment, 100, item.id);
+    update[item.id] = setTimeout(updateTransmission, 100, item.id);
 }
 
 
@@ -243,7 +320,9 @@ timelineTR.on('dragover', dragShowPreciseTime);
 timelineTR.on('click', onClick);
 container.addEventListener('mouseout', mouseOut);
 commentArea.addEventListener('input', onInput);
-
+numInput1.addEventListener('input', onInput);
+numInput2.addEventListener('input', onInput);
+checkInput.addEventListener('click', onInput);
 
 setTimeout(() => {
     timelineTR.moveTo((new Date() - 1000 * 60 * 60 * 4), { animation: true });

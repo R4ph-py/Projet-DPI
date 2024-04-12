@@ -36,7 +36,7 @@ function sendTransmission(itemId) {
         date: timeItem.start.getFullYear() + '-' + (timeItem.start.getMonth() + 1) + '-' + timeItem.start.getDate(),
         time: timeItem.start.getHours() + ':' + timeItem.start.getMinutes(),
         topic: topic,
-        value: value,
+        value: item.value + ";" + value,
         comment: item.comment,
         u_uid: user.uid,
         p_uid: selectedPatient.id,
@@ -74,6 +74,7 @@ socket.on('transmission', function (data) {
     var date = data.date.split('-');
     var time = data.time.split(':');
     var itemContent = "";
+    var values = data.value.split(';');
     for (var icon of icons) {
         if (icon.id === data.topic) {
             itemContent = icon.outerHTML;
@@ -82,7 +83,7 @@ socket.on('transmission', function (data) {
     }
     if (itemContent === "") {
         for (var subicon of subicons) {
-            if (subicon.id === data.topic + data.value) {
+            if (subicon.id === data.topic + values[1]) {
                 itemContent = subicon.outerHTML;
                 break;
             }
@@ -96,6 +97,7 @@ socket.on('transmission', function (data) {
         group: data.group,
         type: "box",
         comment: data.comment,
+        value: values[0],
     });
     timelineTR.itemsData.add({
         id: data.trid + "-time",
@@ -138,7 +140,7 @@ socket.on('transmission_updated', function (data) {
 
 socket.on('transmission_removed', function (data) {
     if (data.trid === timelineTR.getSelection()[0]) {
-        hideCommentArea();
+        hideInputs();
     }
     timelineTR.itemsData.remove(data.trid);
     timelineTR.itemsData.remove(data.trid + "-time");
@@ -150,6 +152,7 @@ socket.on('transmissions', function (data) {
         var date = transmission.date.split('-');
         var time = transmission.time.split(':');
         var itemContent = "";
+        var values = transmission.value.split(';');
         for (var icon of icons) {
             if (icon.id === transmission.topic) {
                 itemContent = icon.outerHTML;
@@ -158,7 +161,7 @@ socket.on('transmissions', function (data) {
         }
         if (itemContent === "") {
             for (var subicon of subicons) {
-                if (subicon.id === transmission.topic + transmission.value) {
+                if (subicon.id === transmission.topic + values[1]) {
                     itemContent = subicon.outerHTML;
                     break;
                 }
@@ -172,6 +175,7 @@ socket.on('transmissions', function (data) {
             group: transmission.group,
             type: "box",
             comment: transmission.comment,
+            value: values[0],
         });
         timelineTR.itemsData.add({
             id: transmission.trid + "-time",

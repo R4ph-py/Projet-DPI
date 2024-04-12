@@ -3585,6 +3585,16 @@ button.small,
 	margin-top: 10px;
 }
 
+.num-input {
+	width: 20%;
+	margin-top: 10px;
+	border-radius: 5px;
+}
+
+.unchecked {
+	background-color: #b4e9ff !important;
+}
+
 .cursor-time {
 	border-color: darkgray;
 }
