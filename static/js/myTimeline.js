@@ -49,6 +49,47 @@ var options = {
         overrideItems: false
     },
     onRemove: removeHandler,
+    tooltip: {
+        followMouse: true,
+        overflowMethod: 'cap',
+        delay: 200,
+        template: function (item) {
+            if (item.id.includes('cursor-time')) {
+                return '';
+            }
+            var time = new Date(item.start);
+            var comment = item.comment || '';
+            var value = item.value || '';
+            var topic = item.content.split('id="')[1].split('"')[0].replace(/[0-9]/g, '');
+            var tooltip = '<div class="tooltip"><p>' + time.getHours() + ':' + (String(time.getMinutes()).length === 1 ? '0' : '') + time.getMinutes();
+            if (comment !== '') {
+                tooltip += '<br/>' + comment;
+            }
+            if (value !== '' && value !== undefined && value !== null) {
+                switch (topic) {
+                    case 'PA':
+                        tooltip += '<br/>Pression artérielle : ' + value;
+                        break;
+                    case 'S':
+                        tooltip += '<br/>Saturation : ' + value;
+                        break;
+                    case 'P':
+                        tooltip += '<br/>Pouls : ' + value;
+                        break;
+                    case 'T':
+                        tooltip += '<br/>Température : ' + value;
+                        break;
+                    case 'C':
+                        tooltip += '<br/>Perte de conscience : ' + (value === 'true' ? 'Oui' : 'Non');
+                        break;
+                    default:
+                        break;
+                }
+            }
+            tooltip += '</p></div>';
+            return tooltip;
+        }
+    },
 };
 
 var container = document.getElementById('visualization');

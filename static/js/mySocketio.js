@@ -30,12 +30,17 @@ function sendTransmission(itemId) {
         type = 'update_transmission';
     }
 
+    var itemVal = item.value;
+    if (itemVal === undefined) {
+        itemVal = 0;
+    }
+
     socket.emit(type, {
         trid: itemId,
         date: item.start.getFullYear() + '-' + (item.start.getMonth() + 1) + '-' + item.start.getDate(),
         time: item.start.getHours() + ':' + item.start.getMinutes(),
         topic: topic,
-        value: item.value + ";" + value,
+        value: itemVal + ";" + value,
         comment: item.comment,
         u_uid: user.uid,
         p_uid: selectedPatient.id,
