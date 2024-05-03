@@ -10,9 +10,8 @@ var patientDropdown = document.getElementById('patients-dropdown');
 
 function sendTransmission(itemId) {
     var item = timelineTR.itemsData.get(itemId);
-    var timeItem = timelineTR.itemsData.get(itemId + '-time');
 
-    if (item === undefined || timeItem === undefined) {
+    if (item === undefined) {
         return;
     }
 
@@ -33,8 +32,8 @@ function sendTransmission(itemId) {
 
     socket.emit(type, {
         trid: itemId,
-        date: timeItem.start.getFullYear() + '-' + (timeItem.start.getMonth() + 1) + '-' + timeItem.start.getDate(),
-        time: timeItem.start.getHours() + ':' + timeItem.start.getMinutes(),
+        date: item.start.getFullYear() + '-' + (item.start.getMonth() + 1) + '-' + item.start.getDate(),
+        time: item.start.getHours() + ':' + item.start.getMinutes(),
         topic: topic,
         value: item.value + ";" + value,
         comment: item.comment,
@@ -68,7 +67,6 @@ socket.on('transmission', function (data) {
             selected = true;
         }
         timelineTR.itemsData.remove(data.trid);
-        timelineTR.itemsData.remove(data.trid + "-time");
     }
 
     var date = data.date.split('-');
@@ -99,14 +97,6 @@ socket.on('transmission', function (data) {
         comment: data.comment,
         value: values[0],
     });
-    timelineTR.itemsData.add({
-        id: data.trid + "-time",
-        content: (String(time[0]).length === 1 ? '0' : '') + time[0] + ':' + (String(time[1]).length === 1 ? '0' : '') + time[1],
-        start: startTime,
-        group: 5,
-        type: "point",
-        className: "item-time",
-    });
 
     if (selected) {
         timelineTR.setSelection([data.trid]);
@@ -123,11 +113,6 @@ socket.on('transmission_added', function (data) {
             timelineTR.itemsData.update(item);
             here = true;
         }
-        if (item.id === "added-item-time") {
-            timelineTR.itemsData.remove(item.id);
-            item.id = data.trid + "-time";
-            timelineTR.itemsData.update(item);
-        }
     }
     if (!here) {
         socket.emit('get_transmission', { trid: data.trid });
@@ -143,7 +128,6 @@ socket.on('transmission_removed', function (data) {
         hideInputs();
     }
     timelineTR.itemsData.remove(data.trid);
-    timelineTR.itemsData.remove(data.trid + "-time");
 });
 
 socket.on('transmissions', function (data) {
@@ -176,14 +160,6 @@ socket.on('transmissions', function (data) {
             type: "box",
             comment: transmission.comment,
             value: values[0],
-        });
-        timelineTR.itemsData.add({
-            id: transmission.trid + "-time",
-            content: (String(time[0]).length === 1 ? '0' : '') + time[0] + ':' + (String(time[1]).length === 1 ? '0' : '') + time[1],
-            start: startTime,
-            group: 5,
-            type: "point",
-            className: "item-time",
         });
     }
 });

@@ -1,18 +1,15 @@
 <!DOCTYPE HTML>
-<!--                              
-	Arcana by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
-                              -->
 <html>
   <head>
-    <link rel="icon" href="{{ url_for('static', filename = 'images/favicon.ico') }}" type="image/x-icon" />
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon" />
     <title>Projet DPI</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-timeline/7.7.3/vis-timeline-graph2d.min.js"></script> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-timeline/7.7.3/vis-timeline-graph2d.css" /> -->
     <script src="https://unpkg.com/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/vis-timeline/styles/vis-timeline-graph2d.min.css" />
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/main.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
   </head>
   <body class="is-preload">
     <div id="page-wrapper">
@@ -37,6 +34,55 @@
             </select>
           </div>
           <br />
+          <div class="buttons-container">
+            <ul id="primary-items">
+              <li>
+                <img draggable="false" class="modal-needed vital-constant" src="{{ url_for('static', filename='images/thermometer.png') }}" alt="Image 1" width="50" height="50" id="T" title="Température" />
+              </li>
+              <li>
+                <img draggable="false" class="modal-needed vital-constant" src="{{ url_for('static', filename='images/manometre.png') }}" alt="Image 2" width="50" height="50" id="PA" title="Pression artérielle" />
+              </li>
+              <li>
+                <img draggable="false" class="modal-needed vital-constant" src="{{ url_for('static', filename='images/pulsation.png') }}" alt="Image 3" width="50" height="50" id="P" title="Rythme cardiaque" />
+              </li>
+              <li>
+                <img draggable="true" class="item vital-constant" src="{{ url_for('static', filename='images/o2.png') }}" alt="Image 4" width="50" height="50" id="S" title="Saturation" />
+              </li>
+              <li>
+                <img draggable="false" class="modal-needed state" src="{{ url_for('static', filename='images/pain.png') }}" alt="Image 5" width="50" height="50" id="D" title="Douleur" />
+              </li>
+              <li>
+                <img draggable="true" class="item state" src="{{ url_for('static', filename='images/fasting.png') }}" alt="Image 6" width="50" height="50" id="A" title="Jeûne" />
+              </li>
+              <li>
+                <img draggable="false" class="modal-needed state" src="{{ url_for('static', filename='images/moods.png') }}" alt="Image 7" width="50" height="50" id="EP" title="Humeur" />
+              </li>
+              <li>
+                <img draggable="false" class="modal-needed in-out" src="{{ url_for('static', filename='images/stool.png') }}" alt="Image 8" width="50" height="50" id="SE" title="Selles" />
+              </li>
+              <li>
+                <img draggable="false" class="modal-needed in-out" src="{{ url_for('static', filename='images/urine.png') }}" alt="Image 9" width="50" height="50" id="U" title="Urine" />
+              </li>
+              <li>
+                <img draggable="false" class="modal-needed in-out" src="{{ url_for('static', filename='images/vomiting.png') }}" alt="Image 10" width="50" height="50" id="NV" title="Nausées et vomissements" />
+              </li>
+              <li>
+                <img draggable="true" class="item cares" src="{{ url_for('static', filename='images/accident.png') }}" alt="Image 11" width="50" height="50" id="C" title="Accident" />
+              </li>
+              <li>
+                <img draggable="true" class="item cares" src="{{ url_for('static', filename='images/catheter.png') }}" alt="Image 12" width="50" height="50" id="CA" title="Cathéter" />
+              </li>
+              <li>
+                <img draggable="true" class="item cares" src="{{ url_for('static', filename='images/band-aid.png') }}" alt="Image 13" width="50" height="50" id="PAN" title="Soin" />
+              </li>
+            </ul>
+            <ul id="secondary-items">
+              <li id="hide-button" style="display: none;">
+                <img draggable="false" id="item-hider" src="{{ url_for('static', filename='images/return-arrow.png') }}" alt="Return arrow" width="50" height="50" />
+              </li>
+            </ul>
+          </div>
+          <br />
           <div id="visualization"></div>
         </div>
         <br />
@@ -45,7 +91,7 @@
           <div class="col-6 col-10-narrower">
             <center>
               <textarea id="comment-transmition" style="resize: none; display: none;" placeholder="Ajouter un commentaire..."></textarea>
-              <br/>
+              <br />
               <input class="unchecked" type="button" id="check-1" name="check-1" style="display: none;" value="Perte de connaissance" />
               <input class="num-input" type="number" id="num-1" placeholder="" style="display: none;" />
               <input class="num-input" type="number" id="num-2" placeholder="" style="display: none;" />
@@ -54,142 +100,98 @@
           <div class="col-3 col-1-narrower"></div>
         </div>
         <br />
-        <div class="buttons-container">
-          <ul>
-            <li>
-              <img draggable="false" class="modal-needed vital-constant" src="{{ url_for('static', filename = 'images/thermometer.png') }}" alt="Image 1" width="50" height="50" id="T" />
-            </li>
-            <li>
-              <img draggable="false" class="modal-needed vital-constant" src="{{ url_for('static', filename = 'images/manometre.png') }}" alt="Image 2" width="50" height="50" id="PA" />
-            </li>
-            <li>
-              <img draggable="false" class="modal-needed vital-constant" src="{{ url_for('static', filename = 'images/pulsation.png') }}" alt="Image 3" width="50" height="50" id="P" />
-            </li>
-            <li>
-              <img draggable="true" class="item vital-constant" src="{{ url_for('static', filename = 'images/o2.png') }}" alt="Image 4" width="50" height="50" id="S" />
-            </li>
-            <li>
-              <img draggable="false" class="modal-needed state" src="{{ url_for('static', filename = 'images/pain.png') }}" alt="Image 5" width="50" height="50" id="D" />
-            </li>
-            <li>
-              <img draggable="true" class="item state" src="{{ url_for('static', filename = 'images/fasting.png') }}" alt="Image 6" width="50" height="50" id="A" />
-            </li>
-            <li>
-              <img draggable="false" class="modal-needed state" src="{{ url_for('static', filename = 'images/moods.png') }}" alt="Image 7" width="50" height="50" id="EP" />
-            </li>
-            <li>
-              <img draggable="false" class="modal-needed in-out" src="{{ url_for('static', filename = 'images/stool.png') }}" alt="Image 8" width="50" height="50" id="SE" />
-            </li>
-            <li>
-              <img draggable="false" class="modal-needed in-out" src="{{ url_for('static', filename = 'images/urine.png') }}" alt="Image 9" width="50" height="50" id="U" />
-            </li>
-            <li>
-              <img draggable="false" class="modal-needed in-out" src="{{ url_for('static', filename = 'images/vomiting.png') }}" alt="Image 10" width="50" height="50" id="NV" />
-            </li>
-            <li>
-              <img draggable="true" class="item cares" src="{{ url_for('static', filename = 'images/accident.png') }}" alt="Image 11" width="50" height="50" id="C" />
-            </li>
-            <li>
-              <img draggable="true" class="item cares" src="{{ url_for('static', filename = 'images/catheter.png') }}" alt="Image 12" width="50" height="50" id="CA" />
-            </li>
-            <li>
-              <img draggable="true" class="item cares" src="{{ url_for('static', filename = 'images/band-aid.png') }}" alt="Image 13" width="50" height="50" id="PAN" />
-            </li>
-          </ul>
-        </div>
         <br />
         <div class="buttons-container">
-          <ul id="shownUl"></ul>
           <ul id="hiddenUl" style="display: none;">
             <li>
-              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename = 'images/hot.png') }}" alt="Image 1 alt1" width="50" height="50" id="T0" />
+              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename='images/hot.png') }}" alt="Image 1 alt1" width="50" height="50" id="T0" title="Fièvre" />
             </li>
             <li>
-              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename = 'images/cold.png') }}" alt="Image 1 alt2" width="50" height="50" id="T1" />
+              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename='images/cold.png') }}" alt="Image 1 alt2" width="50" height="50" id="T1" title="Hypothermie" />
             </li>
             <li>
-              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename = 'images/manometre-moins.png') }}" alt="Image 2 alt1" width="50" height="50" id="PA0" />
+              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename='images/manometre-plus.png') }}" alt="Image 2 alt2" width="50" height="50" id="PA1" title="Pression artérielle élevée" />
             </li>
             <li>
-              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename = 'images/manometre-plus.png') }}" alt="Image 2 alt2" width="50" height="50" id="PA1" />
+              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename='images/manometre-moins.png') }}" alt="Image 2 alt1" width="50" height="50" id="PA0" title="Pression artérielle basse" />
             </li>
             <li>
-              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename = 'images/pulsation-moins.png') }}" alt="Image 3 alt1" width="50" height="50" id="P0" />
+              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename='images/pulsation-plus.png') }}" alt="Image 3 alt2" width="50" height="50" id="P1" title="Rythme cardiaque rapide" />
             </li>
             <li>
-              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename = 'images/pulsation-plus.png') }}" alt="Image 3 alt2" width="50" height="50" id="P1" />
+              <img draggable="true" class="item subicon vital-constant" src="{{ url_for('static', filename='images/pulsation-moins.png') }}" alt="Image 3 alt1" width="50" height="50" id="P0" title="Rythme cardiaque lent" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-1.png') }}" alt="Image 5 alt0" width="50" height="50" id="D0" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-1.png') }}" alt="Image 5 alt0" width="50" height="50" id="D0" title="Douleur de niveau 1" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-2.png') }}" alt="Image 5 alt1" width="50" height="50" id="D1" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-2.png') }}" alt="Image 5 alt1" width="50" height="50" id="D1" title="Douleur de niveau 2" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-3.png') }}" alt="Image 5 alt2" width="50" height="50" id="D2" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-3.png') }}" alt="Image 5 alt2" width="50" height="50" id="D2" title="Douleur de niveau 3" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-4.png') }}" alt="Image 5 alt3" width="50" height="50" id="D3" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-4.png') }}" alt="Image 5 alt3" width="50" height="50" id="D3" title="Douleur de niveau 4" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-5.png') }}" alt="Image 5 alt4" width="50" height="50" id="D4" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-5.png') }}" alt="Image 5 alt4" width="50" height="50" id="D4" title="Douleur de niveau 5" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-6.png') }}" alt="Image 5 alt5" width="50" height="50" id="D5" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-6.png') }}" alt="Image 5 alt5" width="50" height="50" id="D5" title="Douleur de niveau 6" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-7.png') }}" alt="Image 5 alt6" width="50" height="50" id="D6" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-7.png') }}" alt="Image 5 alt6" width="50" height="50" id="D6" title="Douleur de niveau 7" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-8.png') }}" alt="Image 5 alt7" width="50" height="50" id="D7" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-8.png') }}" alt="Image 5 alt7" width="50" height="50" id="D7" title="Douleur de niveau 8" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-9.png') }}" alt="Image 5 alt8" width="50" height="50" id="D8" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-9.png') }}" alt="Image 5 alt8" width="50" height="50" id="D8" title="Douleur de niveau 9" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/pain-10.png') }}" alt="Image 5 alt9" width="50" height="50" id="D9" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/pain-10.png') }}" alt="Image 5 alt9" width="50" height="50" id="D9" title="Douleur de niveau 10" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/angry.png') }}" alt="Image 7 alt1" width="50" height="50" id="EP0" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/colere.png') }}" alt="Image 7 alt1" width="50" height="50" id="EP0" title="Enervement" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/anxious.png') }}" alt="Image 7 alt2" width="50" height="50" id="EP1" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/anxieux.png') }}" alt="Image 7 alt2" width="50" height="50" id="EP1" title="Anxiété" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/sad.png') }}" alt="Image 7 alt3" width="50" height="50" id="EP2" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/emu.png') }}" alt="Image 7 alt3" width="50" height="50" id="EP2" title="Emoi" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/happy.png') }}" alt="Image 7 alt4" width="50" height="50" id="EP2" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/apathique.png') }}" alt="Image 7 alt4" width="50" height="50" id="EP2" title="Apathie" />
             </li>
             <li>
-              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename = 'images/mood-changing.png') }}" alt="Image 7 alt5" width="50" height="50" id="EP3" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/deprime.png') }}" alt="Image 7 alt5" width="50" height="50" id="EP3" title="Deprime" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/stool-minus.png') }}" alt="Image 8 alt1" width="50" height="50" id="SE0" />
+              <img draggable="true" class="item subicon state" src="{{ url_for('static', filename='images/confus.png') }}" alt="Image 7 alt6" width="50" height="50" id="EP4" title="Confusion" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/stool-plus.png') }}" alt="Image 8 alt2" width="50" height="50" id="SE1" />
+              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename='images/stool-plus.png') }}" alt="Image 8 alt2" width="50" height="50" id="SE1" title="Diarrhée" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/stool-none.png') }}" alt="Image 8 alt3" width="50" height="50" id="SE2" />
+              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename='images/stool-minus.png') }}" alt="Image 8 alt1" width="50" height="50" id="SE0" title="Constipation" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/urine-minus.png') }}" alt="Image 9 alt1" width="50" height="50" id="U0" />
+              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename='images/stool-none.png') }}" alt="Image 8 alt3" width="50" height="50" id="SE2" title="Constipation aigüe" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/urine-plus.png') }}" alt="Image 9 alt2" width="50" height="50" id="U1" />
+              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename='images/urine-plus.png') }}" alt="Image 9 alt2" width="50" height="50" id="U1" title="Beaucoup uriné" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/urine-none.png') }}" alt="Image 9 alt3" width="50" height="50" id="U2" />
+              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename='images/urine-minus.png') }}" alt="Image 9 alt1" width="50" height="50" id="U0" title="Peu uriné" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/nausea.png') }}" alt="Image 10 alt1" width="50" height="50" id="NV0" />
+              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename='images/urine-none.png') }}" alt="Image 9 alt3" width="50" height="50" id="U2" title="Abscence urine" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/vomiting.png') }}" alt="Image 10 alt2" width="50" height="50" id="NV1" />
+              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename='images/nausea.png') }}" alt="Image 10 alt1" width="50" height="50" id="NV0" title="Nausées" />
             </li>
             <li>
-              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename = 'images/vomiting2.png') }}" alt="Image 10 alt3" width="50" height="50" id="NV2" />
+              <img draggable="true" class="item subicon in-out" src="{{ url_for('static', filename='images/vomiting.png') }}" alt="Image 10 alt2" width="50" height="50" id="NV1" title="Vomissements" />
             </li>
           </ul>
         </div>
@@ -212,18 +214,18 @@
     </div>
 
     <!-- Scripts -->
-    <script src="{{ url_for('static', filename = 'js/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'js/jquery-ui.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'js/jquery.dropotron.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'js/browser.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'js/breakpoints.min.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'js/util.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'js/myTimeline.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.dropotron.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/browser.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/util.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/myTimeline.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
     <script>
       var socket = io()
     </script>
-    <script src="{{ url_for('static', filename = 'js/mySocketio.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mySocketio.js') }}"></script>
   </body>
 </html>

@@ -2982,7 +2982,7 @@ button.small,
 	/* Header */
 
 	#header {
-		padding: 2em 0 0 0;
+		padding: 0 0 0 0;
 	}
 
 	#header h1 {
@@ -3501,8 +3501,13 @@ button.small,
 	min-height: 2.7em;
 }
 
-.vis-item {
-	background-color: #f2f3ff;
+.vis-item:not(.vis-line):not(.vis-dot){
+	border: transparent;
+	background: transparent;
+}
+
+.vis-selected {
+	background-color: #ffc200 !important;
 }
 
 .buttons-container {

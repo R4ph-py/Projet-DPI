@@ -2,7 +2,9 @@ var modalIcons = document.querySelectorAll('.modal-needed');
 var icons = document.querySelectorAll('.item');
 var subicons = document.querySelectorAll('.subicon');
 var hiddenUl = document.getElementById('hiddenUl');
-var shownUl = document.getElementById('shownUl');
+var primaryItems = document.getElementById('primary-items');
+var secondaryItems = document.getElementById('secondary-items');
+var hideButton = document.getElementById('hide-button');
 var commentArea = document.getElementById('comment-transmition');
 var numInput1 = document.getElementById('num-1');
 var numInput2 = document.getElementById('num-2');
@@ -17,19 +19,20 @@ var groups = new vis.DataSet([{
 },
 {
     id: 1,
-    content: 'Constantes vitales'
+    content: 'Constantes vitales',
+    style: 'background: #ffeaea'
 }, {
     id: 2,
-    content: 'Etat'
+    content: 'Etat',
+    style: 'background: #e0fee0'
 }, {
     id: 3,
-    content: 'Entrées/Sorties'
+    content: 'Entrées/Sorties',
+    style: 'background: #f2f3ff'
 }, {
     id: 4,
-    content: 'Soins'
-}, {
-    id: 5,
-    content: ''
+    content: 'Soins',
+    style: 'background: #ffffe3'
 }]);
 
 var items = new vis.DataSet();
@@ -55,14 +58,13 @@ var timelineTR = new vis.Timeline(container, items, groups, options);
 // Fonctions
 
 function hideAllSubicons() {
-    var length = shownUl.childNodes.length;
+    var length = secondaryItems.childNodes.length;
+    hideButton.style.display = 'none';
     for (var child = 0; child < length; child++) {
-        if (shownUl.childNodes[0].nodeName === 'BR') {
-            shownUl.removeChild(shownUl.childNodes[0]);
-            continue;
-        }
-        hiddenUl.appendChild(shownUl.childNodes[0]);
+        hiddenUl.appendChild(secondaryItems.childNodes[0]);
     }
+    secondaryItems.appendChild(hideButton);
+    primaryItems.style.display = 'block';
 }
 
 function removeHandler(event) {
@@ -81,11 +83,6 @@ function handleDragStart(event) {
     };
 
     event.dataTransfer.setData("text", JSON.stringify(item));
-
-    if (!icon.className.includes('subicon')) {
-        hideAllSubicons();
-    }
-
 }
 
 function mouseOut(event) {
@@ -96,7 +93,6 @@ function mouseOut(event) {
         return;
     }
     timelineTR.itemsData.remove('cursor-time');
-    timelineTR.itemsData.remove('adding-item-time');
 }
 
 function handleDragEnd(event) {
@@ -110,7 +106,6 @@ function handleDragEnd(event) {
     }
 
     var item = timelineTR.itemsData.get('added-item');
-    var timeItem = timelineTR.itemsData.get('adding-item-time');
 
     if (item == null) {
         return;
@@ -118,7 +113,7 @@ function handleDragEnd(event) {
 
     if (selectedPatient == null) {
         timelineTR.itemsData.remove('added-item');
-        timelineTR.itemsData.remove('adding-item-time');
+        alert('Veuillez sélectionner un patient');
         return;
     }
 
@@ -138,17 +133,9 @@ function handleDragEnd(event) {
         item.group = 4;
     }
 
-    item.start = timeItem.start;
+    item.start = timelineTR.itemsData.get('cursor-time').start;
     item.comment = "";
     timelineTR.itemsData.update(item);
-
-    timeItem.id = 'added-item-time';
-    timeItem.className = 'item-time';
-    timeItem.group = 5;
-    timeItem.editable = false;
-    timelineTR.itemsData.remove('adding-item-time');
-    timelineTR.itemsData.add(timeItem);
-
     sendTransmission(item.id);
 }
 
@@ -163,22 +150,6 @@ function cursorShowPreciseTime(params) {
         group: 0,
         type: "point",
         className: "cursor-time",
-    };
-    timelineTR.itemsData.update(item);
-}
-
-function dragShowPreciseTime(params) {
-    cursorShowPreciseTime(params);
-    if (timelineTR.itemsData.get('adding-item-time') != undefined && timelineTR.itemsData.get('adding-item-time').start === params.time) {
-        return;
-    }
-    var item = {
-        id: "adding-item-time",
-        content: (String(params.time.getHours()).length === 1 ? '0' : '') + params.time.getHours() + ':' + (String(params.time.getMinutes()).length === 1 ? '0' : '') + params.time.getMinutes(),
-        start: params.time,
-        group: 5,
-        type: "point",
-        className: "item-time",
     };
     timelineTR.itemsData.update(item);
 }
@@ -302,27 +273,26 @@ for (var i = icons.length - 1; i >= 0; i--) {
 }
 
 for (var modal of modalIcons) {
-    modal.addEventListener('click', function (event) {
-        hideAllSubicons();
+    modal.addEventListener('click', (event) => {
+        primaryItems.style.display = 'none';
+        hideButton.style.display = 'inline';
         for (var subicon of subicons) {
             if (subicon.id.substring(0, subicon.id.length - 1) === event.target.id) {
-                if (shownUl.childNodes.length === 5) {
-                    shownUl.appendChild(document.createElement('br'));
-                }
-                shownUl.appendChild(subicon.parentElement);
+                secondaryItems.appendChild(subicon.parentElement);
             }
         }
     });
 }
 
 timelineTR.on('mouseMove', cursorShowPreciseTime);
-timelineTR.on('dragover', dragShowPreciseTime);
+timelineTR.on('dragover', cursorShowPreciseTime);
 timelineTR.on('click', onClick);
 container.addEventListener('mouseout', mouseOut);
 commentArea.addEventListener('input', onInput);
 numInput1.addEventListener('input', onInput);
 numInput2.addEventListener('input', onInput);
 checkInput.addEventListener('click', onInput);
+hideButton.addEventListener('click', hideAllSubicons);
 
 setTimeout(() => {
     timelineTR.moveTo((new Date() - 1000 * 60 * 60 * 4), { animation: true });
